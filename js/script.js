@@ -8,8 +8,20 @@ const remainingGuessesSpan = document.querySelector(".remaining span");
 const message = document.querySelector(".message");
 const playAgainButton = document.querySelector(".play-again");
 
-const word = "magnolia";
+let word = "magnolia";
 const guessedLetters = [];
+let remainingGuesses = 8;
+
+const getWord = async function () {
+    const response = await fetch ("https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt");
+    const words = await response.text();
+    const wordArray = words.split("\n");
+    const randomIndex = Math.floor(Math.random() * wordArray.length);
+    word = wordArray[randomIndex].trim();
+    placeholder(word);
+};
+
+getWord();
 
 //Function to Add Placeholders for Each Letter
 const placeholder = function (word) {
@@ -60,7 +72,9 @@ const makeGuess = function (guess) {
     } else {
         guessedLetters.push(guess);
         console.log(guessedLetters);
+        updateGuessesRemaining(guess);
         showGuessedLetters();
+
         updateWordInProgress(guessedLetters);
 
     }
@@ -83,7 +97,7 @@ const updateWordInProgress = function (guessedLetters) {
 
     const revealWord = [];
     for (const letter of wordArray) {
-        if (guessedLetters.inclues(letter)) {
+        if (guessedLetters.includes(letter)) {
             revealWord.push(letter.toUpperCase());
         } else {
             revealWord.push("●");
@@ -94,9 +108,22 @@ const updateWordInProgress = function (guessedLetters) {
     checkIfWin();
 };
 
+const updateGuessesRemaining = function (guess) {
+    const upperWord = word.toUpperCase();
+    if (!upperWord.includes(guess)) {
+        message.innerText = `Sorry, the word has no ${guess}.`;
+        remainingGuesses -= 1;
+    } else {
+        message.innerText = `Good guess! The word has the letter ${guess}`;
+    }
+};
+
+
+
+
 const checkIfWin = function () {
     if (word.toUpperCase() === wordInProgress.innerText) {
         message.classList.add("win");
         message.innerHTML = '<p class = "highlight">You guessed the correct word! Congratz!</p>';
-    } 
+    }
 };
